@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import codecs
 import gzip
+import csv
 import pandas as pd
 import numpy as np
+from subprocess import call
 from datetime import datetime, date, timedelta
 import sys 
-import re
 from os import listdir, system
+import re
 from os.path import isfile, join
-
 '''
 Code to parse ASCII lines from ISD files. 
 
@@ -20,22 +22,11 @@ The following example would print out any obs for Montreal (716270) during the h
 python parse_isd_ob.py 716270 1999011500
 
 
-Chris McCray - christopher.mccray@mail.mcgill.ca - March 2017]
+Chris McCray - mccraycd@gmail.com - March 2017]
 '''
 
 def main():
-    stn = sys.argv[1]
-    date = sys.argv[2]
-    #ISD directory must contain subdirectories for each year (e.g. isd_directory/2007/files.gz)
     isd_directory = '/aos/home/cmccray/cages/isd'
-    get_parsed_ob(stn, date, isd_directory)
-
-def get_parsed_ob(stn, date):
-    '''
-    Accepts WMO station code and date in format YYYYMMDDHH, along with directory of ISD files in format base_directory/YYYY/file.gz and searches for obs for given time, then prints out obs. 
-    '''
-
-    #Present weather codes from ISD manual
     manCodes = pd.Series(index=list(range(0,100)))
     manCodes[0:50]="NP"; manCodes[50:56]="DZ"; manCodes[56:58]="FZDZ"; manCodes[58:60]="DZRA"
     manCodes[60:66]="RA"; manCodes[66:68]="FZRA"; manCodes[68:70]="RA,SN"; manCodes[70:79]="SN"
@@ -50,7 +41,9 @@ def get_parsed_ob(stn, date):
     
     header = "USAF,WBAN,STID,SLAT,SLON,DAT,TYPE,TMPC,DWPC,SPED,DRCT,PMSL,mw1,mw2,mw3,mw4,mw5,mw6,mw7,aw1,aw2,aw3,aw4,aw5,aw6,P01M,Z01I,Z03I,Z06I,ZMISS"
     header_list = header.split(',')
-    
+    #Accept date as YYYYMMDDHH
+    date = sys.argv[2]
+    stn = sys.argv[1]
     date_dt = pd.to_datetime(date, format='%Y%m%d%H')
     year_dir = isd_directory+'/'+str(date_dt.year)
     files = [f for f in listdir(year_dir) if isfile(join(year_dir, f))]

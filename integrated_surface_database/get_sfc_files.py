@@ -5,11 +5,17 @@ import os
 import re
 import socket
 
+'''
+FTP log in to NOAA server to get ISD files for given range of years.
+Searches for files that start with 7#####, as these are mostly North American stations. 
+Retries once if it doesn't work.
+'''
+#Enter email below
+email = " "
 ftp = ftplib.FTP('ftp.ncdc.noaa.gov');
-ftp.login("anonymous","christopher.mccray@mail.mcgill.ca")
+ftp.login("anonymous",email)
 ftp.cwd("/pub/data/noaa")
 	
-
 for year in range(2016,2017):
 	
 	direct = "/pub/data/noaa/"+str(year)
